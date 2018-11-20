@@ -3,6 +3,7 @@ import sys
 # 导入自定义模块
 import home
 import scene
+import tanks
 
 from pygame.locals import *
 
@@ -163,6 +164,8 @@ def main():
 
         map_stage = scene.Map(stage)
 
+        myTank = tanks.myTank(1)
+
 
         # 实时监听用户操作事件 1. 用户点击事件 2. 用户点击键盘
         while True:
@@ -174,8 +177,25 @@ def main():
                     # 关闭屏幕
                     sys.exit()
 
+            # 刷新背景
+            screen.blit(bg_img,(0,0))
+
+            # 监听用户按键事件
+            key_pressed = pygame.key.get_pressed()
+            if key_pressed[pygame.K_w]:
+                myTank.move_up()
+            if key_pressed[pygame.K_s]:
+                myTank.move_down()
+            if key_pressed[pygame.K_a]:
+                myTank.move_left()
+            if key_pressed[pygame.K_d]:
+                myTank.move_right()
+
             # 绘制大本营
             screen.blit(myHome.home, myHome.hrect)
+
+            # 绘制本方坦克
+            screen.blit(myTank.tank_0, myTank.rect)
 
             # 绘制地图元素（砖块等）
             for eachBrick in map_stage.brickGroup:
