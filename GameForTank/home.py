@@ -12,11 +12,11 @@ class Home(pygame.sprite.Sprite):
         self.home = pygame.image.load(self.homeImgs[0])
 
         # 大本营显示的位置及其大小
-        self.hrect = self.home.get_rect()
-        self.hrect.left,self.hrect.top = (3 + 12 * 24, 3 + 24 * 24)
+        self.rect = self.home.get_rect()
+        self.rect.left,self.rect.top = (3 + 12 * 24, 3 + 24 * 24)
         # 是否存活
         self.aLive = True
 
-        def set_Dead(self):
-            self.home = pygame.image.load(self.homeImgs[-1])
-            self.aLive = False
+    def set_Dead(self):
+        self.home = pygame.image.load(self.homeImgs[-1])
+        self.aLive = False
