@@ -177,22 +177,22 @@ def main():
                     # 关闭屏幕
                     sys.exit()
 
-            # 刷新背景
+            # 刷新背景w
             screen.blit(bg_img,(0,0))
 
             # 监听用户按键事件
             key_pressed = pygame.key.get_pressed()
             if key_pressed[pygame.K_w]:
-                myTank.move_up()
+                myTank.move_up(map_stage.brickGroup, map_stage.ironGroup, myHome)
             if key_pressed[pygame.K_s]:
-                myTank.move_down()
+                myTank.move_down(map_stage.brickGroup, map_stage.ironGroup, myHome)
             if key_pressed[pygame.K_a]:
-                myTank.move_left()
+                myTank.move_left(map_stage.brickGroup, map_stage.ironGroup, myHome)
             if key_pressed[pygame.K_d]:
-                myTank.move_right()
+                myTank.move_right(map_stage.brickGroup, map_stage.ironGroup, myHome)
 
             # 绘制大本营
-            screen.blit(myHome.home, myHome.hrect)
+            screen.blit(myHome.home, myHome.rect)
 
             # 绘制本方坦克
             screen.blit(myTank.tank_0, myTank.rect)
