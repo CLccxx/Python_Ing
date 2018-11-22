@@ -15,7 +15,7 @@ def show_change_stage(screen, scrWidth, scrHeight, stage):
 
     # 设置文字
     tfont = pygame.font.Font("./font/simkai.ttf", scrWidth // 20)
-    title = tfont.render(u"第一关", True, (0, 255, 0))
+    title = tfont.render(u"第%d关" % stage ,True, (0, 255, 0))
     trect = title.get_rect()
     trect.midtop = (scrWidth / 2, scrHeight / 2.5)
 
@@ -44,18 +44,22 @@ def show_interface_start(screen, scrWidth, scrHeight):
     tfont = pygame.font.Font("./font/simkai.ttf", scrWidth // 4)
     cfont = pygame.font.Font("./font/simkai.ttf", scrWidth // 20)
     title = tfont.render(u"坦克大战",True,(255,0,0))
-    content1 = cfont.render(u"按1进入坦克大战",True,(0,255,255))
+    content1 = cfont.render(u"按1进入单人游戏",True,(0,255,255))
+    content2 = cfont.render(u"按2进入双人游戏",True,(0,255,255))
     trect = title.get_rect()
     crect = content1.get_rect()
+    crect2 = content2.get_rect()
 
     # mid 中间点，top 距上间距
     trect.midtop = (scrWidth / 2 , scrHeight / 4)
     crect.midtop = (scrWidth / 2 , scrHeight / 1.8)
+    crect2.midtop = (scrWidth / 2, scrHeight / 1.6)
 
     # 将文字显示到屏幕上（渲染屏幕）
     # 第一个参数为显示的文字，第二个参数是显示的大小及其位置
     screen.blit(title, trect)
     screen.blit(content1, crect)
+    screen.blit(content2, crect2)
 
     # 刷新一下
     pygame.display.update()
@@ -67,7 +71,9 @@ def show_interface_start(screen, scrWidth, scrHeight):
                 sys.exit()
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_1:
-                    return
+                    return 1
+                if event.key == pygame.K_2:
+                    return 2
 
 # 游戏结束界面
 def show_interface_end(screen, scrWidth, scrHeight, is_Win):
@@ -111,16 +117,17 @@ def main():
     # 刷新一下
     # pygame.display.update()
 
-
     # 默认关数
     stage = 0
     # 总关数
     stage_Num = 2
     # 游戏是否结束
     is_GameOver = False
+    # 时钟
+    clock = pygame.time.Clock()
 
     # 显示主页面
-    show_interface_start(screen, 630, 630)
+    player = show_interface_start(screen, 630, 630)
 
     # 加载音频
     sound_volume = 1
@@ -145,7 +152,6 @@ def main():
     while not is_GameOver:
         stage += 1
         if stage > stage_Num:
-            show_interface_end(screen, 630, 630, True)
             break
 
         # 游戏开始音效
@@ -153,6 +159,35 @@ def main():
 
         # 显示当前关数界面 1s时间
         show_change_stage(screen, 630, 630, stage)
+
+        # 该关卡坦克总数量
+        enemytanks_total = min(stage * 18 ,80)
+        # 场上存在的地方坦克总数量
+        enemytanks_now = 0
+        # 场上可以存在的地方坦克总数量
+        enemytanks_now_max = min((max(stage * 2, 4), 8))
+
+        # 精灵组
+        tanksGroup = pygame.sprite.Group()
+        myTanksGroup = pygame.sprite.Group()
+        enemyTanksGroup = pygame.sprite.Group()
+        bulletsGroup = pygame.sprite.Group()
+        mybulletsGroup = pygame.sprite.Group()
+        enemybulletsGroup = pygame.sprite.Group()
+        myfoodsGroup = pygame.sprite.Group()
+
+        # 自定义事件
+        # 生成地方坦克事件
+        genEnemyEvent = pygame.constants.USEREVENT
+        pygame.time.set_timer(genEnemyEvent, 100)
+
+        # 敌方坦克静止恢复事件
+        recoverEnemyEvent = pygame.constants.USEREVENT
+        pygame.time.set_timer(recoverEnemyEvent, 8000)
+
+        # 我方坦克无敌恢复事件
+        noprotextMyTankEvent = pygame.constants.USEREVENT
+        pygame.time.set_timer(noprotextMyTankEvent, 8000)
 
         # 显示背景
         bg_img = pygame.image.load("./images/others/background.png")
@@ -162,9 +197,27 @@ def main():
         # 在外部模块使用其他模块的类创建对象时，需要：模块名字+类名创建
         myHome = home.Home()
 
+        # 绘制地图
         map_stage = scene.Map(stage)
 
-        myTank = tanks.myTank(1)
+        # 添加我方坦克
+        tank_player1 = tanks.myTank(1)
+        tanksGroup.add(tank_player1)
+        myTanksGroup.add(tank_player1)
+        if player > 1:
+            tank_player2 = tanks.myTank(2)
+            tanksGroup.add(tank_player2)
+            myTanksGroup.add(tank_player2)
+
+        is_switch_tank = True
+        player1_moving = False
+        player2_moving = False
+
+        # 为了轮胎的动画效果
+        time = 0
+        # 敌方坦克
+
+
 
 
         # 实时监听用户操作事件 1. 用户点击事件 2. 用户点击键盘
@@ -177,25 +230,25 @@ def main():
                     # 关闭屏幕
                     sys.exit()
 
-            # 刷新背景w
+            # 刷新背景
             screen.blit(bg_img,(0,0))
 
             # 监听用户按键事件
             key_pressed = pygame.key.get_pressed()
             if key_pressed[pygame.K_w]:
-                myTank.move_up(map_stage.brickGroup, map_stage.ironGroup, myHome)
+                tank_player1.move_up(map_stage.brickGroup, map_stage.ironGroup, myHome)
             if key_pressed[pygame.K_s]:
-                myTank.move_down(map_stage.brickGroup, map_stage.ironGroup, myHome)
+                tank_player1.move_down(map_stage.brickGroup, map_stage.ironGroup, myHome)
             if key_pressed[pygame.K_a]:
-                myTank.move_left(map_stage.brickGroup, map_stage.ironGroup, myHome)
+                tank_player1.move_left(map_stage.brickGroup, map_stage.ironGroup, myHome)
             if key_pressed[pygame.K_d]:
-                myTank.move_right(map_stage.brickGroup, map_stage.ironGroup, myHome)
+                tank_player1.move_right(map_stage.brickGroup, map_stage.ironGroup, myHome)
 
             # 绘制大本营
             screen.blit(myHome.home, myHome.rect)
 
             # 绘制本方坦克
-            screen.blit(myTank.tank_0, myTank.rect)
+            screen.blit(tank_player1.tank_0, tank_player1.rect)
 
             # 绘制地图元素（砖块等）
             for eachBrick in map_stage.brickGroup:
