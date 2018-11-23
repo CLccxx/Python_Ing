@@ -4,6 +4,7 @@ import sys
 import home
 import scene
 import tanks
+import food
 
 from pygame.locals import *
 
@@ -97,6 +98,8 @@ def show_interface_end(screen, scrWidth, scrHeight, is_Win):
         for event in pygame.event.get():
             if event.type == QUIT:
                 sys.exit()
+            if event.type == pygame.KEYDOWN:
+                main()
 
 
 # 加载音乐
@@ -177,7 +180,7 @@ def main():
         myfoodsGroup = pygame.sprite.Group()
 
         # 自定义事件
-        # 生成地方坦克事件
+        # 生成敌方坦克事件
         genEnemyEvent = pygame.constants.USEREVENT
         pygame.time.set_timer(genEnemyEvent, 100)
 
@@ -216,12 +219,28 @@ def main():
         # 为了轮胎的动画效果
         time = 0
         # 敌方坦克
+        for i in range(0,3):
+            if enemytanks_total > 0:
+                enemytank = tanks.enemyTank(i)
+                tanksGroup.add(enemytank)
+                enemyTanksGroup.add(enemytank)
+                enemytanks_now += 1
+                enemytanks_total -= 1
 
-
+        appearance_img = pygame.image.load("./images/others/appear.png").convert_alpha()
+        appearance = []
+        appearance.append(appearance_img.subsurface((0,0),(48,48)))
+        appearance.append(appearance_img.subsurface((48,0),(48,48)))
+        appearance.append(appearance_img.subsurface((96,0),(48,48)))
 
 
         # 实时监听用户操作事件 1. 用户点击事件 2. 用户点击键盘
         while True:
+            if is_GameOver is True:
+                break
+            if enemytanks_total < 1 and enemytanks_now < 1:
+                is_GameOver = False
+                break
 
             # 遍历所有事件
             for event in pygame.event.get():
@@ -229,6 +248,23 @@ def main():
                 if event.type == QUIT:
                     # 关闭屏幕
                     sys.exit()
+                if event.type == genEnemyEvent:
+                    if enemytanks_total > 0:
+                        if enemytanks_now < enemytanks_now_max:
+                            enemytank = tanks.enemyTank()
+                            if not pygame.sprite.spritecollide(enemytank, tanksGroup, False, None):
+                                tanksGroup.add(enemytank)
+                                enemyTanksGroup.add(enemytank)
+                                enemytanks_now += 1
+                                enemytanks_total -= 1
+
+                if event.type == recoverEnemyEvent:
+                    for each in enemyTanksGroup:
+                        each.can_move = True
+
+                if event.type == noprotextMyTankEvent:
+                    for each in myTanksGroup:
+                        each.protected = False
 
             # 刷新背景
             screen.blit(bg_img,(0,0))
@@ -236,19 +272,59 @@ def main():
             # 监听用户按键事件
             key_pressed = pygame.key.get_pressed()
             if key_pressed[pygame.K_w]:
-                tank_player1.move_up(map_stage.brickGroup, map_stage.ironGroup, myHome)
+                tanksGroup.remove(tank_player1)
+                tank_player1.move_up(tanksGroup, map_stage.brickGroup, map_stage.ironGroup, myHome)
+                tanksGroup.add(tank_player1)
+                player1_moving = True
             if key_pressed[pygame.K_s]:
-                tank_player1.move_down(map_stage.brickGroup, map_stage.ironGroup, myHome)
+                tanksGroup.remove(tank_player1)
+                tank_player1.move_down(tanksGroup, map_stage.brickGroup, map_stage.ironGroup, myHome)
+                tanksGroup.add(tank_player1)
+                player1_moving = True
             if key_pressed[pygame.K_a]:
-                tank_player1.move_left(map_stage.brickGroup, map_stage.ironGroup, myHome)
+                tanksGroup.remove(tank_player1)
+                tank_player1.move_left(tanksGroup, map_stage.brickGroup, map_stage.ironGroup, myHome)
+                tanksGroup.add(tank_player1)
+                player1_moving = True
             if key_pressed[pygame.K_d]:
-                tank_player1.move_right(map_stage.brickGroup, map_stage.ironGroup, myHome)
+                tanksGroup.remove(tank_player1)
+                tank_player1.move_right(tanksGroup, map_stage.brickGroup, map_stage.ironGroup, myHome)
+                tanksGroup.add(tank_player1)
+                player1_moving = True
+            if key_pressed[pygame.K_SPACE]:
+                if not tank_player1.bullet.being:
+                    fire_sound.play()
+                    tank_player1.shoot()
+
+            # 玩家二
+            if player > 1:
+                if key_pressed[pygame.K_UP]:
+                    tanksGroup.remove(tank_player2)
+                    tank_player2.move_up(tanksGroup, map_stage.brickGroup, map_stage.ironGroup, myHome)
+                    tanksGroup.add(tank_player2)
+                    player2_moving = True
+                elif key_pressed[pygame.K_DOWN]:
+                    tanksGroup.remove(tank_player2)
+                    tank_player2.move_down(tanksGroup, map_stage.brickGroup, map_stage.ironGroup, myHome)
+                    tanksGroup.add(tank_player2)
+                    player2_moving = True
+                elif key_pressed[pygame.K_LEFT]:
+                    tanksGroup.remove(tank_player2)
+                    tank_player2.move_left(tanksGroup, map_stage.brickGroup, map_stage.ironGroup, myHome)
+                    tanksGroup.add(tank_player2)
+                    player2_moving = True
+                elif key_pressed[pygame.K_RIGHT]:
+                    tanksGroup.remove(tank_player2)
+                    tank_player2.move_right(tanksGroup, map_stage.brickGroup, map_stage.ironGroup, myHome)
+                    tanksGroup.add(tank_player2)
+                    player2_moving = True
+                elif key_pressed[pygame.K_0]:
+                    if not  tank_player2.bullet.being:
+                        fire_sound.play()
+                        tank_player2.shoot()
 
             # 绘制大本营
             screen.blit(myHome.home, myHome.rect)
-
-            # 绘制本方坦克
-            screen.blit(tank_player1.tank_0, tank_player1.rect)
 
             # 绘制地图元素（砖块等）
             for eachBrick in map_stage.brickGroup:
@@ -266,7 +342,253 @@ def main():
             for eachTree in map_stage.treeGroup:
                 screen.blit(eachTree.tree, eachTree.rect)
 
+            time += 1
+            if time == 5:
+                time = 0
+                is_switch_tank = not is_switch_tank
+
+            # 绘制本方坦克
+            if tank_player1 in myTanksGroup:
+                if is_switch_tank and player1_moving:
+                    screen.blit(tank_player1.tank_0, tank_player1.rect)
+                    player1_moving = False
+                else:
+                    screen.blit(tank_player1.tank_1, tank_player1.rect)
+                # 如果有保护罩
+                if tank_player1.protected:
+                    screen.blit(tank_player1.protected_mask1, tank_player1.rect)
+            if player > 1:
+                if tank_player2 in myTanksGroup:
+                    if is_switch_tank and player2_moving:
+                        screen.blit(tank_player2.tank_0, tank_player2.rect)
+                        player1_moving = False
+                    else:
+                        screen.blit(tank_player2.tank_1, tank_player2.rect)
+
+                    if tank_player2.protected:
+                        screen.blit(tank_player2.protected_mask1, tank_player2.rect)
+
+            # 绘制敌方坦克
+            for each in enemyTanksGroup:
+                # 出生特效
+                if each.born:
+                    if each.times > 0:
+                        each.times -= 1
+                        if each.times <= 10:
+                            screen.blit(appearance[2],(3 + each.x * 12 * 24, 3))
+                        elif each.times <= 20:
+                            screen.blit(appearance[1],(3 + each.x * 12 * 24, 3))
+                        elif each.times <= 30:
+                            screen.blit(appearance[0],(3 + each.x * 12 * 24, 3))
+                        elif each.times <= 40:
+                            screen.blit(appearance[2],(3 + each.x * 12 * 24, 3))
+                        elif each.times <= 50:
+                            screen.blit(appearance[1],(3 + each.x * 12 * 24, 3))
+                        elif each.times <= 60:
+                            screen.blit(appearance[0],(3 + each.x * 12 * 24, 3))
+                        elif each.times <= 70:
+                            screen.blit(appearance[2],(3 + each.x * 12 * 24, 3))
+                        elif each.times <= 80:
+                            screen.blit(appearance[1],(3 + each.x * 12 * 24, 3))
+                        elif each.times <= 90:
+                            screen.blit(appearance[0],(3 + each.x * 12 * 24, 3))
+                    else:
+                        each.born = False
+                else:
+                    if is_switch_tank:
+                        screen.blit(each.tank_0, each.rect)
+                    else:
+                        screen.blit(each.tank_1, each.rect)
+
+                    if each.can_move:
+                        tanksGroup.remove(each)
+                        each.move(tanksGroup, map_stage.brickGroup, map_stage.ironGroup, myHome)
+                        tanksGroup.add(each)
+
+            # 我方子弹
+            for tank_player in myTanksGroup:
+                if tank_player.bullet.being:
+                    tank_player.bullet.move()
+                    screen.blit(tank_player.bullet.bullet, tank_player.bullet.rect)
+
+                    # 子弹碰撞敌方子弹
+                    for each in enemybulletsGroup:
+                        if each.being:
+                            if pygame.sprite.collide_rect(tank_player.bullet, each):
+                                tank_player.bullet.being = False
+                                each.bing = False
+                                enemybulletsGroup.remove(each)
+                                break
+                        else:
+                            enemybulletsGroup.remove(each)
+
+                    # 子弹碰撞敌方坦克
+                    for each in enemyTanksGroup:
+                        if each.being:
+                            if pygame.sprite.collide_rect(tank_player.bullet, each):
+                                if each.is_Red == True:
+                                    myfood = food.Food()
+                                    myfood.generate()
+                                    myfoodsGroup.add(myfood)
+                                    each.is_Red = False
+                                each.blood -= 1
+                                each.color -= 1
+                                if each.blood < 0:
+                                    bang_sound.play()
+                                    each.being = False
+                                    enemyTanksGroup.remove(each)
+                                    enemytanks_now -= 1
+                                    tanksGroup.remove(each)
+                                else:
+                                    each.reload()
+                                tank_player.bullet.being = False
+                                break
+                        else:
+                            enemyTanksGroup.remove(each)
+                            tanksGroup.remove(each)
+
+                    # 子弹碰撞石头墙
+                    for each in map_stage.brickGroup:
+                        if pygame.sprite.collide_rect(tank_player.bullet, each):
+                            tank_player.bullet.being = False
+                            each.being = False
+                            map_stage.brickGroup.remove(each)
+                            break
+
+                    # 子弹碰撞钢墙
+                    for each in map_stage.ironGroup:
+                        if pygame.sprite.collide_rect(tank_player.bullet, each):
+                            tank_player.bullet.being = False
+                            if tank_player.bullet.stronger:
+                                each.being = False
+                                map_stage.ironGroup.remove(each)
+                            break
+
+                    # 子弹碰撞大本营
+                    if pygame.sprite.collide_rect(tank_player.bullet, myHome):
+                        tank_player.bullet.being = False
+                        myHome.set_Dead()
+                        is_GameOver = True
+                        break
+            # 敌方子弹
+            for each in enemyTanksGroup:
+                if each.being:
+                    if each.can_move and not each.bullet.being:
+                        enemyTanksGroup.remove(each.bullet)
+                        each.shoot()
+                        enemybulletsGroup.add(each.bullet)
+                    if not each.born:
+                        if each.bullet.being:
+                            each.bullet.move()
+                            screen.blit(each.bullet.bullet, each.bullet.rect)
+                            # 子弹碰撞我方坦克
+                            for tank_player in myTanksGroup:
+                                if pygame.sprite.collide_rect(each.bullet, tank_player):
+
+                                    if tank_player.protected:
+                                        tank_player.protected = False
+                                    else:
+                                        tank_player.life -= 1
+                                    if tank_player.life < 0:
+                                        myTanksGroup.remove(tank_player)
+                                        tanksGroup.remove(tank_player)
+                                        if len(myTanksGroup) < 1:
+                                            is_GameOver = True
+                                    else:
+                                        tank_player.reset()
+
+                                    each.bullet.being = False
+                                    enemybulletsGroup.remove(each.bullet)
+                                    brick
+
+                            # 子弹碰撞石头墙
+                            for brick in map_stage.brickGroup:
+                                if pygame.sprite.collide_rect(each.bullet, brick):
+                                    each.bullet.being = False
+                                    enemybulletsGroup.remove(each.bullet)
+                                    brick.being = False
+                                    map_stage.brickGroup.remove(brick)
+                                    break
+
+                            # 子弹碰撞钢墙
+                            for iron in map_stage.ironGroup:
+                                if pygame.sprite.collide_rect(each.bullet, iron):
+                                    each.bullet.being = False
+                                    if each.bullet.stronger:
+                                        iron.being = False
+                                        map_stage.ironGroup.remove(iron)
+                                    break
+
+                            # 子弹碰撞大本营
+                            if pygame.sprite.collide_rect(each.bullet, myHome):
+                                each.bullet.being = False
+                                myHome.set_Dead()
+                                is_GameOver = True
+                                break
+                else:
+                    enemyTanksGroup.remove(each)
+                    tanksGroup.remove(each)
+
+
+            # 食物
+            for myfood in myfoodsGroup:
+                if myfood.being and myfood.time > 0:
+                    screen.blit(myfood.food, myfood.rect)
+                    myfood.time -= 1
+                    for tanke_player in myTanksGroup:
+                        if pygame.sprite.collide_rect(tank_player, myfood):
+                            # 消灭当前所有敌人
+                            if myfood.kind == 0:
+                                for _ in enemyTanksGroup:
+                                    bang_sound.play()
+                                enemyTanksGroup = pygame.sprite.Group()
+                                enemytanks_total -= enemytanks_now
+                                enemytanks_now = 0
+
+                            # 敌人静止
+                            if myfood.kind == 1:
+                                for each in enemyTanksGroup:
+                                    each.can_move = False
+
+                            # 子弹增强
+                            if myfood.kind == 2:
+                                add_sound.play()
+                                tank_player.bullet.stronger = True
+
+                            # 是大本营的墙变为刚板
+                            if myfood.kind == 3:
+                                map_stage.protect_home()
+
+                            # 坦克获得一段时间的保护罩
+                            if myfood.kind == 4:
+                                add_sound.play()
+                                for tank_player in myfoodsGroup:
+                                    tank_player.protected = True
+
+                            # 坦克升级
+                            if myfood.kind == 5:
+                                add_sound.play()
+                                tank_player.up_level()
+
+                            # 坦克生命 + 1
+                            if myfood.kind == 6:
+                                add_sound.play()
+                                tank_player.lefe += 1
+
+                            myfood.being = False
+                            myfoodsGroup.remove(myfood)
+                            break
+                else:
+                    myfood.being = False
+                    myfoodsGroup.remove(myfood)
+
             pygame.display.flip()
+            clock.tick(60)
+
+        if not is_GameOver:
+            show_interface_end(screen, 630,630, True)
+        else:
+            show_interface_end(screen,630,630, False)
 
 
 main()
