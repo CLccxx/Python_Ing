@@ -130,5 +130,20 @@ str.startswith("http")
 # 是否以指定数据结尾
 str.endswith("xxx")
 
+# 把字符串以指定字符分割成三部分，如果不存在指定字符串则分为整体和两个空字符串
+str.partition("bb")
+
+# 根据指定字符串拼接数据,my_str中每个字符之间插入一个flag_str，插入列表页可以
+flag_str = "-"
+my_str = "abc"
+result = flag_str.join(my_str)
+print(result)
+
+# 去除指定参数，如果不传参数则默认去除空格
+str.strip()
+# 去除左边空格
+str.lstrip()
+# 去除右边空格
+str.rstrip()
 
 ```
