@@ -56,10 +56,10 @@ num = int(str)
 
 ```
 def print(self, *args, sep=' ', end='\n', file=None):
-# *args 表示任何多个无名参数,各个值之间用“,”隔开。
-# sep 表示当输入多个打印的值时,各个值之间的的分割方式,默认是“ ”,我们可以通过为sep赋值来自定义分割方式
-# end 控制print中传入值输出完后结束符号，默认为换行,可以通过为end赋值设置为其他自定义结束方式
-# file 设置输出设备以及把print中的值打印到什么地方,默认输出到准端,可以设置file = 文件储存对象，把内容存到该文件中。
+# *args 表示任何多个无名参数，各个值之间用“,”隔开。
+# sep 表示当输入多个打印的值时，各个值之间的的分割方式，默认是“ ”，我们可以通过为sep赋值来自定义分割方式
+# end 控制print中传入值输出完后结束符号，默认为换行，可以通过为end赋值设置为其他自定义结束方式
+# file 设置输出设备以及把print中的值打印到什么地方，默认输出到准端，可以设置file = 文件储存对象，把内容存到该文件中。
 
 f = open(r'a.txt', 'w')
 print('python is good', file=f)
@@ -69,20 +69,20 @@ f.close()
 输入
 
 ```
-def input(*args, **kwargs):
-# *args, **kwargs 都是Python中的可变参数
+def input(*args， **kwargs):
+# *args， **kwargs 都是Python中的可变参数
 # *args表示任何多个无名参数，它本质是一个tuple； 
 # **kwargs表示关键字参数，它本质上是一个dict； 
 # 如果同时使用*args和**kwargs时，*args参数列必须在**kwargs前面。
 
 示例：
-def fun(*args,**kwargs):
+def fun(*args，**kwargs):
     print('args=', args)
     print('kwargs=',kwargs)
 fun(1,2,3,4,A='a',B='b',C='c',D='d')
 
 输出：
-args= (1, 2, 3, 4)
+args= (1， 2， 3， 4)
 kwargs= {'A': 'a', 'B': 'b', 'C': 'c', 'D': 'd'}
 ```
 
@@ -113,23 +113,29 @@ else:
 
 ```
 str = "hello world"
-# 根据指定数据查找其第一次出现的下标，如果没有该数据则直接crash
+# 根据指定数据查找其第一次出现的下标，如果没有该数据则直接crash，可以指定查找的范围
 str.index("h")
 
-# 根据指定数据查找其第一次出现的下标，find如果没有找到数据返回的是-1.
-str.find("z")
+# 同index(), 从右边开始
+str.rindex("o")
+
+# 根据指定数据查找其第一次出现的下标，find如果没有找到数据返回的是-1，可以指定查找的范围
+str.find("z", start = 0, end = len(str))
+
+# 同find(), 从右边开始找
+str.rfind("z")
 
 # 统计字符串的长度
 len(str)
 
-# 统计某个字符出现的次数
-str.count("l")
+# 统计某个字符出现的次数，并且可以指定范围
+str.count("l", start = 0, end = len(str))
 
-# 替换指定的数据,如果没有则不替换
-str1 = str.replace("l","x")
+# 替换指定的数据，如果没有则不替换，可以指定最多替换多少次。
+str1 = str.replace("l","x",str.count(str1))
 
-# 分割数据（将分割的数据装入列表里面，对应分割出来的字符就是列表中的元素）,如果没有对应的分割符，则会将整个分割为一个
-str_list = str.split(",")
+# 分割数据（将分割的数据装入列表里面，对应分割出来的字符就是列表中的元素），如果没有对应的分割符，则会将整个分割为一个
+str_list = str.split("，")
 
 # 是否以指定数据开头
 str.startswith("http") 
@@ -137,10 +143,34 @@ str.startswith("http")
 # 是否以指定数据结尾
 str.endswith("xxx")
 
+# 把字符串的第一个字符大写
+str.capitalize()
+
+# 把字符串以空格分开的每个字符串第一个字符大写并返回改字符串
+str.title()
+
+# 把字符串中所有大写字符转为小写
+str.lower()
+
+# 把字符串中所有小写字符转为大写
+str.upper()
+
+# 返回一个与原字符左对齐，并使用空格填充至长度width的新字符串，如果width本来就小于字符串长度则不做补充。
+str.ljust(width)
+
+# 返回一个与原字符右对齐，并使用空格填充至长度width的新字符串，如果width本来就小于字符串长度则不做补充。
+str.rjust(width)
+
+# 返回一个与原字符串居中，并使用空格填充至长度width的新字符串
+str.center(width)
+
 # 把字符串以指定字符分割成三部分，如果不存在指定字符串则分为整体和两个空字符串
 str.partition("bb")
 
-# 根据指定字符串拼接数据,my_str中每个字符之间插入一个flag_str，插入列表页可以
+# 同partition(), 从右边开始
+str.rpartition("bb")
+
+# 根据指定字符串拼接数据，my_str中每个字符之间插入一个flag_str，插入列表页可以
 flag_str = "-"
 my_str = "abc"
 result = flag_str.join(my_str)
@@ -152,6 +182,25 @@ str.strip()
 str.lstrip()
 # 去除右边空格
 str.rstrip()
+
+# 按照行分割, 返回一个包含各行作为元素的列表
+str.splitlines()
+
+# 如果str所有字符都是字母, 则返回True, 否则返回False
+str.isalpha()
+
+# 如果str只包含数字则返回True, 否则返回False
+str.isdigit()
+
+# 如果str所有字符都是字母或数字则返回True, 否则返回False
+str.isalnum
+
+# 如果str只包含空格, 则返回True, 否则返回False
+str.isspace()
+
+# 在str中每个元素后面插入insertStr, 返回新字符串
+str.join(insertStr)
+
 ```
 
 ### 循环语句
@@ -167,25 +216,25 @@ while num <=5:
 for 循环: 有三个参数，起始数据：默认为0，终止数据：默认不打印，以及跳跃数据（步长，默认为1）
 
 ```
-for value in range(1，6，2):
+for value in range(1,6,2):
     print(value)
-# 打印内容：1,3,5
+# 打印内容：1，3，5
 ```
 
 for循环和whlie循环可以结合else使用:循环结束之后执行
 
 ### 列表
-Python中的列表就是数组,列表中可以存放任意类型数据。
+Python中的列表就是数组，列表中可以存放任意类型数据。
 
 ```
 # 定义一个列表
-my_list = [1,3.14,"hello world",True]
+my_list = [1, 3.14, "hello world", True]
 
 # 给列表增加指定数据
 my_list.append(5)
 
 # 列表指定位置插入数据
-my_list.insert(1,"abc")
+my_list.insert(1, "abc")
 
 # 列表中拼接列表，将列表中的数据取出来拼接到原有列表中
 my_list.extend(my_list1)
@@ -193,10 +242,10 @@ my_list.extend(my_list1)
 # 修改数据，直接通过下标进行修改
 my_list[0] = "4"
 
-# remove 删除指定数据,如果数组中该数据则会crash
+# remove 删除指定数据，如果数组中该数据则会crash
 my_list.remove("abc")
 
-# 根据下标删除,下标要合法
+# 根据下标删除，下标要合法
 del my_list[0]
 
 # 返回被删除的值，如果不传下标则默认阐述最后一个元素
@@ -219,8 +268,8 @@ result = my_list.count("a")
 ```
 # 注意：如果元组只有一个数据，则无法构成元组，其类型为该数据的类型
 # tuple = (1) 其实是int类型的。
-# 如果想创建只有一个数据的元组可以这样 tuple = (1,) 但是这样做并没有什么意义。
-my_tuple = (1,3.14,"abc",True)
+# 如果想创建只有一个数据的元组可以这样 tuple = (1，) 但是这样做并没有什么意义。
+my_tuple = (1, 3.14, "abc", True)
 
 # 根据下标取值
 my_tuple[1]
@@ -229,14 +278,14 @@ my_tuple[1]
 元组同样适用于列表中判断数据是否在元组中，以及获取数据在元组中的下标及个数。
 
 ### 字典
-字典：以大括号表现形式的键值对数据组合,字典是无序的，通过key来获取value。
+字典：以大括号表现形式的键值对数据组合，字典是无序的，通过key来获取value。
 
 ```
-my_dict = {"name":"cc","age":17}
+my_dict = {"name":"cc", "age":17}
 
 # 通过key获取value
 value = my_dict["name"]
-# 如果字典中没有该key则会crash,可以通过使用get()来避免这个问题,如果没有key则会返回NONE
+# 如果字典中没有该key则会crash，可以通过使用get()来避免这个问题，如果没有key则会返回NONE
 my_dict.get("sex")
 
 # 为字典添加键值对，如果字典中存在该key，则修改value的值，如果不存在则添加该键值对
@@ -263,24 +312,24 @@ result = "age" in my_dict
 ```
 
 ### 集合
-set集合:以大括号表现形式的数据集合,集合里面不能有重复的数据，集合可以根据下标获取数据,可以添加和删除。
+set集合:以大括号表现形式的数据集合，集合里面不能有重复的数据，集合可以根据下标获取数据，可以添加和删除。
 
 ```
-my_set = {1,3.14,"hello","world"}
+my_set = {1, 3.14, "hello", "world"}
 
-#删除数据,不能删除不存在的数据，否则会crash
+#删除数据，不能删除不存在的数据，否则会crash
 my_set.remove("hello")
 
-# 也可以删除数据,这种方式即使没有数据也不会crash
+# 也可以删除数据，这种方式即使没有数据也不会crash
 my_set.discard(12221)
 
 # 列表转集合，用于去重
-my_list = [1,2,3,3,5,5]
+my_list = [1, 2, 3, 3, 5, 5]
 my_set = set(my_list)
 ```
 
 ### for循环
-for循环获取容器类型中的所有元素，获取容器类型中的每一个元素(字符串,列表,元组,字典,集合)
+for循环获取容器类型中的所有元素，获取容器类型中的每一个元素(字符串，列表，元组，字典，集合)
 
 ```
 for value in list 的格式
@@ -289,7 +338,7 @@ for value in my_list:
     print(value)
 
 # 如果需要遍历值和下标可以使用enumerate()封装列表
-for index,value in enumerate(my_list):
+for index，value in enumerate(my_list):
     print(value)
 
 # 遍历字典
@@ -301,7 +350,7 @@ for value in my_dict.values():
     print(value)
 
 #遍历出来字典所有的key和value
-for key,value in my_dict.items():
-    print(key,value)
+for key，value in my_dict.items():
+    print(key，value)
 
 ```
