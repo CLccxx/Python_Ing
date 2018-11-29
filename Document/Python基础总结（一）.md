@@ -230,40 +230,64 @@ Python中的列表就是数组，列表中可以存放任意类型数据。
 # 定义一个列表
 my_list = [1, 3.14, "hello world", True]
 
+# 获取列表的长度
+len(my_list)
+
 # 给列表增加指定数据
 my_list.append(5)
 
 # 列表指定位置插入数据
 my_list.insert(1, "abc")
 
-# 列表中拼接列表，将列表中的数据取出来拼接到原有列表中
+# 可以使用-1做索引，直接获取最后一个元素
+my_list[-1]
+
+# 将另一个集合中的元素逐一添加到列表中
 my_list.extend(my_list1)
 
 # 修改数据，直接通过下标进行修改
 my_list[0] = "4"
 
-# remove 删除指定数据，如果数组中该数据则会crash
+# 根据元素的值进行删除，如果数组中该数据则会crash
 my_list.remove("abc")
 
-# 根据下标删除，下标要合法
+# 根据下标删除，下标要合法，否则会crash
 del my_list[0]
 
-# 返回被删除的值，如果不传下标则默认阐述最后一个元素
+# 返回被删除的值，如果不传下标则默认删除最后一个元素
 remove_item = my_list.pop(0)
 print(remove_item)
 
 # 判断指定数据是否在列表当中，返回bool值
 result = "abc" in my_list
 
+# 判断不存在
+result = "abc" not in my_list
+
 # 根据数据获取其对应的下标，数据不存在会crash
 result = my_list.index("草莓")
 
 # 根据指定数据获取数据在列表中的个数
 result = my_list.count("a")
+
+# 将列表按照特定的顺序排序，默认为由小到大，可以设置参数reverse = True改为倒序排序，由大到小。
+my_list.sort()
+
+# 将列表翻转，逆向
+my_list.reverse()
+```
+
+可以使用运算符对列表直接进行相应的操作(+ , *)
+
+```
+[1,2] + [3,4]  -> [1,2,3,4]
+["go"] * 3 -> ["go","go","go"]
 ```
 
 ### 元组
-与列表类似，以小括号形式存储的数据集合，可以存储任意数据类型，可以根据下标获取数据，但是不能对元组进行数据修改
+与列表类似，以小括号形式存储的数据集合，可以存储任意数据类型，可以根据下标获取数据，但是不能对元组进行数据修改。
+
+元组不可变，所以代码更安全，如果可以满足需求，尽量使用tuple代替list。
 
 ```
 # 注意：如果元组只有一个数据，则无法构成元组，其类型为该数据的类型
@@ -276,6 +300,8 @@ my_tuple[1]
 ```
 
 元组同样适用于列表中判断数据是否在元组中，以及获取数据在元组中的下标及个数。
+
+元组内的数据不可以进行修改，但是我们可以对元组中的列表内的数据进行修改
 
 ### 字典
 字典：以大括号表现形式的键值对数据组合，字典是无序的，通过key来获取value。
@@ -294,6 +320,12 @@ my_dict["name"] = "李四"
 # 删除(key和value同时存在)
 del my_dict["age"]
 
+# 删除整个字典
+del my_dict
+
+# 清空整个字典
+my_dict.clear()
+
 # 随机删除键值对
 my_dict.popitem()
 
@@ -305,6 +337,14 @@ result = my_dict.keys()
 
 # 获取所有的value
 result = my_dict.values()
+
+# 遍历字典的项
+for item in my_dict.items():
+    # item 为元组
+    print(item)
+    
+for key,value in my_dict.items():
+    print(key,value)
 
 # 判断key 是否存在字典当中
 result = "age" in my_dict
