@@ -426,3 +426,104 @@ d = {"name" : "xx_cc", "age" : "18"}
 my_list1 = [x + y for x, y in d.items()]
 # 这里表示将字典中每个键值对的key 和 value组合之后生成list
 ```
+
+
+### 生成器
+如果列表中包含的元素过多，而我们仅仅需要访问前面几个元素，那后面绝大多数元素占用的空间都白白浪费了。所以如果列表元素可以按照某种算法推算出来，那我们就不必创建完整的list,而在循环的过程中不断推算出后续的元素。
+Python中这种一边循环一边计算的机制，称为生成器：generator
+
+```
+# 创建一个generator 
+# 只需要将列表生成式的[]换成()就创建了一个generator
+my_generator = (x for x in range(1,11))
+
+# 如果要一个一个获取generator的值，可以调用next函数
+next(my_generator)  # 1
+next(my_generator)  # 2
+# next函数调用完毕之后，就将数据从generator取出来了，generator中不在存储此数据。如果最后没有数据了就会报错
+
+# 使用for循环来打印
+for n in my_generator:
+    print(n)
+# 因为前面调用两次next,取出了1，2因此此时打印(3 - 10)
+
+```
+
+generator 非常强大，如果推算的算法比较复杂，用类似列表生成式的for循环无法实现的时候，还可以使用函数来实现。
+
+```
+# 定义generator的另一种方法
+
+def odd():
+    print("step 1")
+    yield 1
+    print("step 2")
+    yield 3
+    print("step 3")
+    yield 5
+
+o = odd()
+print(next(o))
+print(next(o))
+print(next(o))
+
+####  打印内容 :
+step 1  # 调用next(o)打印"step 1",遇到yield返回1。
+1       # print 打印返回值1
+step 2  # 调用next(o)从上次返回yield语句继续执行，打印"step 3"
+3       # print 打印返回值3
+step 3  # 调用next(o)从上次返回yield语句继续执行，打印"step 5"
+5       # print 打印返回值5
+#### 注意 : 打印完毕之后再次调用next(o)则会报错
+
+# 上述代码可以看出，generator和函数的执行流程不一样。
+
+# 函数是顺序执行，遇到return语句或者最后一行函数语句就返回。
+
+# generator的函数，在每次调用next()的时候执行，遇到yield语句就返回，再次调用next()时，从上次返回的yield语句处继续执行。
+
+
+```
+
+现在来尝试将函数转为generator
+
+```
+# 打印斐波拉契数列的函数
+
+def fib(max):
+    n, a, b = 0, 0, 1
+    while n < max:
+        print(b)
+        a, b = b, a + b
+        n += 1
+    return "done"
+
+fib(6)
+
+# 将函数转为generator
+# 上述代码可以看出fib函数实际上是定义了斐波拉契数列的推算规则，可以从第一个元素开始，推算出后续任意的元素，这种推算逻辑非常适合generator,上述代码中将print(b)改为yield b返回出来供我们使用即可
+
+def fib(max):
+    n, a, b = 0, 0, 1
+    while n < max:
+        yield b
+        a, b = b, a + b
+        n += 1
+    return "done"
+
+# 可以通过循环来打印generator中的值
+for n in fib(6):
+    print(n)
+
+# 但是如果使用for循环调用generator时，发现拿不到return语句，如果想要拿到返回值，则必须捕获StopIteration错误，返回值包含在StopIteration的value中
+
+g = fib(6)
+while True:
+    try:
+        x = next(g)
+        print("fib:", x)
+    except StopIteration as e:
+        # 捕获异常中的value
+        print("Generator Return Value:", e.value)
+        break
+```
