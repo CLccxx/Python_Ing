@@ -527,3 +527,9 @@ while True:
         print("Generator Return Value:", e.value)
         break
 ```
+
+### 迭代器
+可以直接作用于for循环，还可以被next()函数不断调用并返回下一个值，知道最后抛出StopIteration错误表示无法继续返回下一个值了。
+
+可以被next()函数调用being不断返回下一个值的对象成为迭代器：Iterator，可以使用isinstance()判断一个对象是否是Iterable对象
+
